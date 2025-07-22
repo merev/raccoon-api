@@ -15,6 +15,8 @@ def verify_decline_token(token: str) -> str:
 def send_reservation_email(to_email: str, reservation_data: dict):
     smtp_host = os.getenv("SMTP_HOST", "localhost")
     smtp_port = int(os.getenv("SMTP_PORT", "1025"))
+    smtp_user = os.getenv("SMTP_USERNAME")
+    smtp_pass = os.getenv("SMTP_PASSWORD")
     sender = os.getenv("SMTP_SENDER", "no-reply@raccoon.bg")
 
     reservation_id = reservation_data["reservation_id"]
@@ -41,4 +43,6 @@ def send_reservation_email(to_email: str, reservation_data: dict):
     msg.attach(MIMEText(html, "html"))
 
     with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
         server.sendmail(sender, to_email, msg.as_string())
