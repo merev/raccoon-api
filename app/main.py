@@ -2,13 +2,20 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app import models, schemas, database
 from sqlalchemy.exc import SQLAlchemyError
+import asyncio
 
 app = FastAPI(root_path="/api")
 
 @app.on_event("startup")
 async def startup():
-    async with database.engine.begin() as conn:
-        await conn.run_sync(models.Base.metadata.create_all)
+    for i in range(10):
+        try:
+            async with database.engine.begin() as conn:
+                await conn.run_sync(models.Base.metadata.create_all)
+            break
+        except Exception as e:
+            print(f"DB not ready yet, retrying... ({i + 1}/10)")
+            await asyncio.sleep(2)
 
 @app.post("/reservations")
 async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSession = Depends(database.SessionLocal)):
