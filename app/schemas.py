@@ -1,24 +1,14 @@
-from sqlalchemy import Column, String, Text, Integer, JSON, TIMESTAMP
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
-import uuid
-from datetime import datetime
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional
 
-Base = declarative_base()
-
-class Reservation(Base):
-    __tablename__ = "reservations"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-    address = Column(Text, nullable=False)
-    info = Column(Text)
-    flat_type = Column(String)
-    subscription = Column(String)
-    plan = Column(String)
-    activities = Column(JSON)
-    total_price = Column(Integer)
-    status = Column(String, default="pending")
-    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+class ReservationIn(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+    address: str
+    info: Optional[str]
+    flat_type: str
+    subscription: str
+    plan: Optional[str]
+    activities: Optional[List[str]]
+    total_price: int
