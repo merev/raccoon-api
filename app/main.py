@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import models, schemas, database
 from sqlalchemy.exc import SQLAlchemyError
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 @app.on_event("startup")
 async def startup():
