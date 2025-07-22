@@ -18,7 +18,7 @@ async def startup():
             await asyncio.sleep(2)
 
 @app.post("/reservations")
-async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSession = Depends(database.SessionLocal)):
+async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSession = Depends(database.get_db)):
     try:
         new_res = models.Reservation(
             name=reservation.name,
@@ -34,7 +34,8 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
         )
         db.add(new_res)
         await db.commit()
+        await db.refresh(new_res)
         return {"status": "success", "reservation_id": str(new_res.id)}
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail="Database error")
+        raise HTTPException(status_code=500, detail=str(e))
