@@ -6,6 +6,7 @@ from app.mail_utils import send_reservation_email, verify_decline_token
 from sqlalchemy import update
 import asyncio
 from app.contact import router as contact_router
+from app.telegram import send_telegram_message
 
 app = FastAPI(root_path="/api")
 
@@ -42,6 +43,19 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
         db.add(new_res)
         await db.commit()
         await db.refresh(new_res)
+
+        await send_telegram_message(
+            f"📩 *Нова резервация!*\n\n"
+            f"👤 *Име:* {new_res.name}\n"
+            f"📞 *Тел:* {new_res.phone}\n"
+            f"🏠 *Адрес:* {new_res.address}\n"
+            f"🏢 *Тип:* {new_res.flat_type}\n"
+            f"📦 *План:* {new_res.plan or 'Потребителски'}\n"
+            f"🧹 *Дейности:* {', '.join(new_res.activities)}\n"
+            f"💰 *Цена:* {new_res.total_price} лв\n"
+            f"📅 *Дата:* {new_res.date}\n"
+            f"🕒 *Час:* {new_res.time[:5]}"
+        )
 
         send_reservation_email(
             to_email=reservation.email,
