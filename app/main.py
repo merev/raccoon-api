@@ -7,10 +7,13 @@ from sqlalchemy import update
 import asyncio
 from app.contact import router as contact_router
 from app.telegram import send_telegram_message
+from app.admin_routes import router as admin_router
 
 app = FastAPI(root_path="/api")
 
 app.include_router(contact_router)
+app.include_router(admin_router)
+
 
 @app.on_event("startup")
 async def startup():
