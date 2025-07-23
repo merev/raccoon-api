@@ -54,7 +54,7 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
             f"🧹 *Дейности:* {', '.join(new_res.activities)}\n"
             f"💰 *Цена:* {new_res.total_price} лв\n"
             f"📅 *Дата:* {new_res.date}\n"
-            f"🕒 *Час:* {new_res.time[:5]}"
+            f"🕒 *Час:* {new_res.time.strftime('%H:%M')}"
         )
 
         send_reservation_email(
