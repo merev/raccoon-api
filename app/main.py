@@ -5,8 +5,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.mail_utils import send_reservation_email, verify_decline_token
 from sqlalchemy import update
 import asyncio
+from app.contact import router as contact_router
 
 app = FastAPI(root_path="/api")
+
+app.include_router(contact_router)
 
 @app.on_event("startup")
 async def startup():

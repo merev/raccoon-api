@@ -17,7 +17,7 @@ def send_reservation_email(to_email: str, reservation_data: dict):
     smtp_port = int(os.getenv("SMTP_PORT", "1025"))
     smtp_user = os.getenv("SMTP_USERNAME")
     smtp_pass = os.getenv("SMTP_PASSWORD")
-    sender = os.getenv("SMTP_SENDER", "no-reply@raccoon.bg")
+    sender = os.getenv("SMTP_SENDER", os.getenv("SMTP_USERNAME", "no-reply@raccoon.bg"))
 
     reservation_id = reservation_data["reservation_id"]
     token = generate_decline_token(reservation_id)
@@ -47,4 +47,4 @@ def send_reservation_email(to_email: str, reservation_data: dict):
     with smtplib.SMTP(smtp_host, smtp_port) as server:
         server.starttls()
         server.login(smtp_user, smtp_pass)
-        server.sendmail(sender, to_email, msg.as_string())
+        server.sendmail(sender, [to_email], msg.as_string())
