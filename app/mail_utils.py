@@ -30,6 +30,8 @@ def send_reservation_email(to_email: str, reservation_data: dict):
         <p>Тип апартамент: {reservation_data['flat_type']}</p>
         <p>План: {reservation_data.get('plan', 'Потребителски')}</p>
         <p>Обща цена: {reservation_data['total_price']} лв</p>
+        <p>Желана дата: {reservation_data.get('date', '')}</p>
+        <p>Час: {reservation_data.get('time', '')}</p>
         <br>
         <a href="{decline_url}" style="padding: 10px 20px; background: #e00; color: white; text-decoration: none;">Откажи заявката</a>
       </body>

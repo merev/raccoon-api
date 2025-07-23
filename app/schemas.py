@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
+from datetime import date, time
 
 class ReservationIn(BaseModel):
     name: str
@@ -12,3 +13,5 @@ class ReservationIn(BaseModel):
     plan: Optional[str]
     activities: Optional[List[str]]
     total_price: int
+    date: date
+    time: time

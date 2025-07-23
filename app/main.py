@@ -33,6 +33,8 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
             plan=reservation.plan,
             activities=reservation.activities,
             total_price=reservation.total_price,
+            date=reservation.date,
+            time=reservation.time,
         )
         db.add(new_res)
         await db.commit()
@@ -44,7 +46,9 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
                 "reservation_id": str(new_res.id),
                 "flat_type": reservation.flat_type,
                 "plan": reservation.plan or "Потребителски",
-                "total_price": reservation.total_price
+                "total_price": reservation.total_price,
+                "date": str(reservation.date),
+                "time": str(reservation.time)[:5]
             }
         )
 

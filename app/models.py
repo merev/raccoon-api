@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, Integer, JSON, TIMESTAMP
+from sqlalchemy import Column, String, Text, Integer, JSON, TIMESTAMP, Date, Time
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -20,5 +20,7 @@ class Reservation(Base):
     plan = Column(String)
     activities = Column(JSON)
     total_price = Column(Integer)
+    date = Column(Date, nullable=False)
+    time = Column(Time, nullable=False)
     status = Column(String, default="pending")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
