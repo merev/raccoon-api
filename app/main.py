@@ -8,12 +8,20 @@ import asyncio
 from app.contact import router as contact_router
 from app.telegram import send_telegram_message
 from app.admin_routes import router as admin_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(root_path="/api")
 
 app.include_router(contact_router)
 app.include_router(admin_router)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://admin-staging.raccoon.bg"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup():
