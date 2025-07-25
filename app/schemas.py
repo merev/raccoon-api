@@ -41,3 +41,11 @@ class ReservationOut(BaseModel):
 class ReservationUpdate(BaseModel):
     status: Optional[str]
     notes: Optional[str]  # if you want to store admin notes in future
+
+class ReservationFilter(BaseModel):
+    name: Optional[str]
+    status: Optional[str]
+    date_from: Optional[date]
+    date_to: Optional[date]
+    page: int = 1
+    limit: int = 10

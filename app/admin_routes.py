@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List, Optional
-from sqlalchemy import update, delete
+from sqlalchemy import and_
 from uuid import UUID
+from typing import List, Optional
+from datetime import date
+
 from app import models, schemas, database
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -11,17 +13,32 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 @router.get("/reservations", response_model=List[schemas.ReservationOut])
 async def get_reservations(
     db: AsyncSession = Depends(database.get_db),
+    name: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
-    skip: int = 0,
-    limit: int = 50
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1)
 ):
     query = select(models.Reservation)
-    if status:
-        query = query.where(models.Reservation.status == status)
-    query = query.offset(skip).limit(limit)
+    filters = []
 
+    if name:
+        filters.append(models.Reservation.name.ilike(f"%{name}%"))
+    if status:
+        filters.append(models.Reservation.status == status)
+    if date_from:
+        filters.append(models.Reservation.date >= date_from)
+    if date_to:
+        filters.append(models.Reservation.date <= date_to)
+
+    if filters:
+        query = query.where(and_(*filters))
+
+    query = query.offset((page - 1) * limit).limit(limit)
     results = await db.execute(query)
     return results.scalars().all()
+
 
 @router.patch("/reservations/{reservation_id}", response_model=schemas.ReservationOut)
 async def update_reservation(
@@ -42,6 +59,7 @@ async def update_reservation(
     await db.commit()
     await db.refresh(res)
     return res
+
 
 @router.delete("/reservations/{reservation_id}")
 async def delete_reservation(
