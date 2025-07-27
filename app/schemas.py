@@ -1,8 +1,16 @@
 from pydantic import BaseModel, EmailStr, model_validator
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Generic, TypeVar
 from datetime import date, time, datetime
 from uuid import UUID
 
+
+T = TypeVar('T')
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    data: List[T]
+    total: int
+    page: int
+    per_page: int
 
 class ReservationIn(BaseModel):
     name: str
@@ -36,7 +44,7 @@ class ReservationOut(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ReservationUpdate(BaseModel):
     status: Optional[Literal["pending", "confirmed", "declined", "completed"]] = None

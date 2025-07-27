@@ -12,7 +12,7 @@ from app import models, schemas, database
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-@router.get("/reservations", response_model=List[schemas.ReservationOut])
+@router.get("/reservations", response_model=schemas.PaginatedResponse[schemas.ReservationOut])
 async def get_reservations(
     db: AsyncSession = Depends(database.get_db),
     name: Optional[str] = Query(None),
