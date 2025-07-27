@@ -5,6 +5,8 @@ from sqlalchemy import and_
 from uuid import UUID
 from typing import List, Optional
 from datetime import date
+from sqlalchemy import func  # Add this import
+from sqlalchemy import select, and_
 
 from app import models, schemas, database
 
@@ -20,39 +22,46 @@ async def get_reservations(
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100)
 ):
-    # Base query
-    query = select(models.Reservation)
-    count_query = select(func.count(models.Reservation.id))
+    try:
+        # Base query
+        query = select(models.Reservation)
+        count_query = select(func.count(models.Reservation.id))
 
-    # Apply filters to both queries
-    filters = []
-    if name:
-        filters.append(models.Reservation.name.ilike(f"%{name}%"))
-    if status:
-        filters.append(models.Reservation.status == status)
-    if date_from:
-        filters.append(models.Reservation.date >= date_from)
-    if date_to:
-        filters.append(models.Reservation.date <= date_to)
+        # Apply filters to both queries
+        filters = []
+        if name:
+            filters.append(models.Reservation.name.ilike(f"%{name}%"))
+        if status:
+            filters.append(models.Reservation.status == status)
+        if date_from:
+            filters.append(models.Reservation.date >= date_from)
+        if date_to:
+            filters.append(models.Reservation.date <= date_to)
 
-    if filters:
-        query = query.where(and_(*filters))
-        count_query = count_query.where(and_(*filters))
+        if filters:
+            query = query.where(and_(*filters))
+            count_query = count_query.where(and_(*filters))
 
-    # Get paginated results
-    offset = (page - 1) * per_page
-    query = query.offset(offset).limit(per_page)
+        # Get paginated results
+        offset = (page - 1) * per_page
+        query = query.offset(offset).limit(per_page)
 
-    # Execute queries
-    results = await db.execute(query)
-    total_result = await db.execute(count_query)
+        # Execute queries
+        results = await db.execute(query)
+        total_result = await db.execute(count_query)
 
-    return {
-        "data": results.scalars().all(),
-        "total": total_result.scalar_one(),
-        "page": page,
-        "per_page": per_page
-    }
+        return {
+            "data": results.scalars().all(),
+            "total": total_result.scalar_one(),
+            "page": page,
+            "per_page": per_page
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Server error: {str(e)}"
+    )
 
 
 @router.patch("/reservations/{reservation_id}", response_model=schemas.ReservationOut)
