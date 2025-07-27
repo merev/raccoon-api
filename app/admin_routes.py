@@ -18,7 +18,7 @@ async def get_reservations(
     date_from: Optional[date] = Query(None),
     date_to: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1)
+    per_page: int = Query(10, ge=1, le=100)
 ):
     query = select(models.Reservation)
     filters = []
@@ -35,7 +35,9 @@ async def get_reservations(
     if filters:
         query = query.where(and_(*filters))
 
-    query = query.offset((page - 1) * limit).limit(limit)
+    offset = (page - 1) * per_page
+    query = query.offset(offset).limit(per_page)
+
     results = await db.execute(query)
     return results.scalars().all()
 
