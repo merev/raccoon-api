@@ -20,9 +20,12 @@ async def get_reservations(
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100)
 ):
+    # Base query
     query = select(models.Reservation)
-    filters = []
+    count_query = select(func.count(models.Reservation.id))
 
+    # Apply filters to both queries
+    filters = []
     if name:
         filters.append(models.Reservation.name.ilike(f"%{name}%"))
     if status:
@@ -34,12 +37,22 @@ async def get_reservations(
 
     if filters:
         query = query.where(and_(*filters))
+        count_query = count_query.where(and_(*filters))
 
+    # Get paginated results
     offset = (page - 1) * per_page
     query = query.offset(offset).limit(per_page)
 
+    # Execute queries
     results = await db.execute(query)
-    return results.scalars().all()
+    total_result = await db.execute(count_query)
+
+    return {
+        "data": results.scalars().all(),
+        "total": total_result.scalar_one(),
+        "page": page,
+        "per_page": per_page
+    }
 
 
 @router.patch("/reservations/{reservation_id}", response_model=schemas.ReservationOut)
