@@ -46,19 +46,40 @@ async def update_reservation(
     update_data: schemas.ReservationUpdate,
     db: AsyncSession = Depends(database.get_db)
 ):
-    result = await db.execute(
+    # Validate UUID exists
+    try:
+        reservation_id = UUID(str(reservation_id))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid reservation ID format"
+        )
+
+    # Get reservation
+    res = await db.scalar(
         select(models.Reservation).where(models.Reservation.id == reservation_id)
     )
-    res = result.scalar_one_or_none()
     if not res:
-        raise HTTPException(status_code=404, detail="Reservation not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reservation not found"
+        )
 
-    for key, value in update_data.dict(exclude_unset=True).items():
-        setattr(res, key, value)
+    # Apply updates
+    update_values = update_data.model_dump(exclude_unset=True)
+    for field, value in update_values.items():
+        setattr(res, field, value)
 
-    await db.commit()
-    await db.refresh(res)
-    return res
+    try:
+        await db.commit()
+        await db.refresh(res)
+        return res
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}"
+        )
 
 
 @router.delete("/reservations/{reservation_id}")

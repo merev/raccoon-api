@@ -39,8 +39,15 @@ class ReservationOut(BaseModel):
         orm_mode = True
 
 class ReservationUpdate(BaseModel):
-    status: Optional[str]
-    notes: Optional[str]  # if you want to store admin notes in future
+    status: Optional[Literal["pending", "confirmed", "declined", "completed"]] = None
+    notes: Optional[str] = None # if you want to store admin notes in future
+
+    @model_validator(mode='before')
+    def validate_update(cls, values):
+        if not values:
+            raise ValueError("Request body cannot be empty")
+        return values
+
 
 class ReservationFilter(BaseModel):
     name: Optional[str]
