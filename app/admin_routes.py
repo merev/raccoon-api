@@ -30,6 +30,8 @@ async def get_reservations(
             filters.append(models.Reservation.name.ilike(f"%{name}%"))
         if status:
             filters.append(models.Reservation.status == status)
+        if subscription:
+            filters.append(models.Reservation.subscription == subscription)
         if date_from:
             filters.append(models.Reservation.date >= date_from)
         if date_to:
