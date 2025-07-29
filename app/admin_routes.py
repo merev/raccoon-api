@@ -14,6 +14,7 @@ async def get_reservations(
     db: AsyncSession = Depends(database.get_db),
     name: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    subscription: Optional[str] = Query(None),
     date_from: Optional[date] = Query(None),
     date_to: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
