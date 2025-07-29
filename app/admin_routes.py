@@ -15,6 +15,7 @@ async def get_reservations(
     name: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     subscription: Optional[str] = Query(None),
+    service_type: str = Query(None),
     date_from: Optional[date] = Query(None),
     date_to: Optional[date] = Query(None),
     page: int = Query(1, ge=1),
@@ -33,6 +34,8 @@ async def get_reservations(
             filters.append(models.Reservation.status == status)
         if subscription:
             filters.append(models.Reservation.subscription == subscription)
+        if service_type:
+            filters.append(models.Reservation.service_type == service_type)
         if date_from:
             filters.append(models.Reservation.date >= date_from)
         if date_to:

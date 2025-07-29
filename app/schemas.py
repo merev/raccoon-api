@@ -63,6 +63,7 @@ class ReservationFilter(BaseModel):
     name: Optional[str]
     status: Optional[str]
     subscription: Optional[str]
+    service_type: str
     date_from: Optional[date]
     date_to: Optional[date]
     page: int = 1
