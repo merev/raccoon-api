@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import and_
+from sqlalchemy import and_, func, select, desc
 from uuid import UUID
 from typing import List, Optional
 from datetime import date
-from sqlalchemy import func  # Add this import
-from sqlalchemy import select, and_
-
 from app import models, schemas, database
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -44,6 +41,7 @@ async def get_reservations(
 
         # Get paginated results
         offset = (page - 1) * per_page
+        query = query.order_by(desc(models.Reservation.created_at))
         query = query.offset(offset).limit(per_page)
 
         # Execute queries
