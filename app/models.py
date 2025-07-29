@@ -24,3 +24,4 @@ class Reservation(Base):
     time = Column(Time, nullable=False)
     status = Column(String, default="pending")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    service_type = Column(String, nullable=False)

@@ -25,6 +25,7 @@ class ReservationIn(BaseModel):
     total_price: int
     date: date
     time: time
+    service_type: str
 
 class ReservationOut(BaseModel):
     id: UUID
@@ -42,6 +43,7 @@ class ReservationOut(BaseModel):
     time: time
     status: str
     created_at: datetime
+    service_type: str
 
     class Config:
         from_attributes = True
@@ -60,6 +62,7 @@ class ReservationUpdate(BaseModel):
 class ReservationFilter(BaseModel):
     name: Optional[str]
     status: Optional[str]
+    subscription: Optional[str]
     date_from: Optional[date]
     date_to: Optional[date]
     page: int = 1
