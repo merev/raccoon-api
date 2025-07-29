@@ -50,13 +50,14 @@ async def create_reservation(reservation: schemas.ReservationIn, db: AsyncSessio
             total_price=reservation.total_price,
             date=reservation.date,
             time=reservation.time,
+            service_type=reservation.service_type
         )
         db.add(new_res)
         await db.commit()
         await db.refresh(new_res)
 
         await send_telegram_message(
-            f"📩 *Нова резервация!*\n\n"
+            f"📩 *Нова резервация!* - {new_res.service_type}\n\n"
             f"👤 *Име:* {new_res.name}\n"
             f"📞 *Тел:* {new_res.phone}\n"
             f"🏠 *Адрес:* {new_res.address}\n"
